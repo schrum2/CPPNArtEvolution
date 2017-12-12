@@ -1,25 +1,5 @@
 package edu.southwestern.evolution.lineage;
 
-import edu.southwestern.evolution.genotypes.Genotype;
-import edu.southwestern.evolution.genotypes.MLPGenotype;
-import edu.southwestern.evolution.genotypes.TWEANNGenotype;
-import edu.southwestern.evolution.mulambda.MuLambda;
-import edu.southwestern.evolution.selectiveBreeding.SelectiveBreedingEA;
-import edu.southwestern.MMNEAT.MMNEAT;
-import edu.southwestern.networks.MLP;
-import edu.southwestern.networks.Network;
-import edu.southwestern.networks.NetworkTask;
-import edu.southwestern.networks.TWEANN;
-import edu.southwestern.parameters.CommonConstants;
-import edu.southwestern.parameters.Parameters;
-import edu.southwestern.scores.Score;
-import edu.southwestern.tasks.LonerTask;
-import edu.southwestern.tasks.interactive.picbreeder.PicbreederTask;
-import edu.southwestern.util.PopulationUtil;
-import edu.southwestern.util.graphics.DrawingPanel;
-import edu.southwestern.util.graphics.GraphicsUtil;
-import edu.southwestern.util.graphics.Plot;
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -35,6 +15,21 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.southwestern.MMNEAT.MMNEAT;
+import edu.southwestern.evolution.genotypes.Genotype;
+import edu.southwestern.evolution.genotypes.TWEANNGenotype;
+import edu.southwestern.evolution.mulambda.MuLambda;
+import edu.southwestern.evolution.selectiveBreeding.SelectiveBreedingEA;
+import edu.southwestern.networks.Network;
+import edu.southwestern.networks.NetworkTask;
+import edu.southwestern.networks.TWEANN;
+import edu.southwestern.parameters.CommonConstants;
+import edu.southwestern.parameters.Parameters;
+import edu.southwestern.tasks.interactive.picbreeder.PicbreederTask;
+import edu.southwestern.util.PopulationUtil;
+import edu.southwestern.util.graphics.DrawingPanel;
+import edu.southwestern.util.graphics.GraphicsUtil;
+import edu.southwestern.util.graphics.Plot;
 import wox.serial.Easy;
 
 /**
@@ -267,18 +262,13 @@ public class Offspring {
 									System.out.println("Done drawing image");
 								} else {
 									// Evaluate mechanism is mostly limited to Loner Tasks
-									@SuppressWarnings("unchecked")
-									Score<TWEANN> s = ((LonerTask<TWEANN>) MMNEAT.task).evaluate((TWEANNGenotype) g);
-									int[] moduleUsage = ((TWEANNGenotype) s.individual).getModuleUsage();
-									o.modeUsage = moduleUsage;
-									System.out.println("Score: " + s);
-									System.out.println("Module Usage: " + Arrays.toString(moduleUsage));
+//									@SuppressWarnings("unchecked")
+//									Score<TWEANN> s = ((LonerTask<TWEANN>) MMNEAT.task).evaluate((TWEANNGenotype) g);
+//									int[] moduleUsage = ((TWEANNGenotype) s.individual).getModuleUsage();
+//									o.modeUsage = moduleUsage;
+//									System.out.println("Score: " + s);
+//									System.out.println("Module Usage: " + Arrays.toString(moduleUsage));
 								}
-							} else if (MMNEAT.genotype instanceof MLPGenotype) {
-								// Evaluate mechanism is limited to Loner Tasks
-								@SuppressWarnings("unchecked")
-								Score<MLP> s = ((LonerTask<MLP>) MMNEAT.task).evaluate((MLPGenotype) g);
-								System.out.println("Score: " + s);
 							} else {
 								System.out.println("Evaluation only available for TWEANNs and MLPs");
 							}
