@@ -20,18 +20,13 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import edu.southwestern.MMNEAT.MMNEAT;
-import edu.southwestern.evolution.EvolutionaryHistory;
-import edu.southwestern.evolution.genotypes.HyperNEATCPPNGenotype;
 import edu.southwestern.networks.ActivationFunctions;
 import edu.southwestern.networks.Network;
-import edu.southwestern.parameters.Parameters;
 import edu.southwestern.util.MiscUtil;
 import edu.southwestern.util.datastructures.ArrayUtil;
 import edu.southwestern.util.datastructures.Triple;
 import edu.southwestern.util.graphics.DrawingPanel;
 import edu.southwestern.util.graphics.GraphicsUtil;
-import javazoom.jl.decoder.JavaLayerException;
 
 /**
  * Class containing various testing examples for sound utility methods in sound package.
@@ -61,22 +56,6 @@ public class SoundUtilExamples {
 	public static final int NOTE_ON = 0x90;
 	public static final int NOTE_OFF = 0x80;
 	public static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-
-	public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException, JavaLayerException, InvalidMidiDataException {
-		//CPPN initialization
-		Parameters.initializeParameterCollections(new String[]{"io:false","netio:false","randomSeed:12"});
-		MMNEAT.loadClasses();
-		EvolutionaryHistory.initArchetype(0);
-
-		HyperNEATCPPNGenotype test = new HyperNEATCPPNGenotype(3, 1, 0);
-		for(int i = 0; i < 30; i++) {
-			test.mutate();
-		}
-		Network cppn = test.getCPPN();
-
-		// method call
-		plotExamples(cppn);
-	}
 
 	@SuppressWarnings("unused")
 	// This method allows for quick testing of sound functionality
@@ -587,16 +566,6 @@ public class SoundUtilExamples {
 		System.out.println("classicalALM: " + classicalALM);
 		System.out.println("furEliseALM: " + furEliseALM);
 		System.out.println("piratesALM: " + piratesALM);
-	}
-	
-	public static void multipleCPPNMIDIPlayback() {
-		HyperNEATCPPNGenotype test = new HyperNEATCPPNGenotype(3, 1, 0);
-		Network[] cppns = new Network[30];
-		for(int i = 0; i < 30; i++) {
-			test.mutate();
-			cppns[i] = test.getCPPN();
-		}
-		MIDIUtil.playMIDIWithCPPNsFromString(CHRISTMAS_MID, cppns, 1);
 	}
 	
 	public static void convertStereoWAV() {

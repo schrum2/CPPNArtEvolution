@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 
-import edu.southwestern.evolution.genotypes.HyperNEATCPPNGenotype;
 import edu.southwestern.networks.Network;
 
 /**
@@ -48,7 +47,7 @@ public class SoundFromCPPNUtil {
 	public static double[] amplitudeGenerator(Network CPPN, int length, double frequency, double[] inputMultipliers) {
 		double[] result = new double[length];
 		for(double time = 0; time < length; time++) {
-			double[] inputs = new double[]{time/PlayDoubleArray.SAMPLE_RATE, Math.sin(2*Math.PI * frequency * time/PlayDoubleArray.SAMPLE_RATE), HyperNEATCPPNGenotype.BIAS};	
+			double[] inputs = new double[]{time/PlayDoubleArray.SAMPLE_RATE, Math.sin(2*Math.PI * frequency * time/PlayDoubleArray.SAMPLE_RATE), 1.0};	
 			// Multiplies the inputs of the pictures by the inputMultiples; used to turn on or off the effects in each picture
 			for(int i = 0; i < inputs.length; i++) {
 				inputs[i] = inputs[i] * inputMultipliers[i];
@@ -76,7 +75,7 @@ public class SoundFromCPPNUtil {
 	public static double[] amplitudeRemixer(Network CPPN, double[] inputWAV, int length, double frequency, double[] inputMultipliers) {
 		double[] result = new double[length];
 		for(double time = 0; time < length; time++) {
-			double[] inputs = new double[]{time/PlayDoubleArray.SAMPLE_RATE, Math.sin(2*Math.PI * frequency * time/PlayDoubleArray.SAMPLE_RATE), inputWAV[(int) time], HyperNEATCPPNGenotype.BIAS};	
+			double[] inputs = new double[]{time/PlayDoubleArray.SAMPLE_RATE, Math.sin(2*Math.PI * frequency * time/PlayDoubleArray.SAMPLE_RATE), inputWAV[(int) time], 1.0};	
 			// Multiplies the inputs of the pictures by the inputMultiples; used to turn on or off the effects in each picture
 			for(int i = 0; i < inputs.length; i++) {
 				inputs[i] = inputs[i] * inputMultipliers[i];
