@@ -1,13 +1,12 @@
 package edu.southwestern.evolution.genotypes;
 
+import java.util.ArrayList;
+
 import edu.southwestern.evolution.mutation.real.PerturbMutation;
 import edu.southwestern.evolution.mutation.real.PolynomialMutation;
-import edu.southwestern.util.random.RandomNumbers;
 import edu.southwestern.parameters.Parameters;
-import edu.southwestern.MMNEAT.MMNEAT;
 import edu.southwestern.util.datastructures.ArrayUtil;
-
-import java.util.ArrayList;
+import edu.southwestern.util.random.RandomNumbers;
 
 /**
  * Genotype that is a fixed-length sequence of real numbers, all of which are
@@ -19,14 +18,7 @@ public class BoundedRealValuedGenotype extends RealValuedGenotype {
 
 	double[] lower; // Lowest allowable value for each gene position
 	double[] upper; // Highest allowable value for each gene position
-	boolean polynomialMutation; // Whether or not polynomial mutation should be
-								// used
-
-	public BoundedRealValuedGenotype() {
-		// May need to change this if other tasks start using the real-coded
-		// genotype
-		this(MMNEAT.fos.getLowerBounds(), MMNEAT.fos.getUpperBounds());
-	}
+	boolean polynomialMutation; // Whether or not polynomial mutation should be used
 
 	public BoundedRealValuedGenotype(double[] lower, double[] upper) {
 		this(RandomNumbers.randomBoundedArray(lower, upper), lower, upper);
