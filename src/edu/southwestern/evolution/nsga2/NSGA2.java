@@ -1,22 +1,19 @@
 package edu.southwestern.evolution.nsga2;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import edu.southwestern.MMNEAT.MMNEAT;
 import edu.southwestern.evolution.EvolutionaryHistory;
 import edu.southwestern.evolution.genotypes.Genotype;
 import edu.southwestern.evolution.mulambda.MuPlusLambda;
-import edu.southwestern.MMNEAT.MMNEAT;
 import edu.southwestern.parameters.CommonConstants;
 import edu.southwestern.parameters.Parameters;
 import edu.southwestern.scores.Better;
-import edu.southwestern.scores.MultiObjectiveScore;
 import edu.southwestern.scores.ObjectiveComparator;
 import edu.southwestern.scores.Score;
-import edu.southwestern.tasks.NoisyLonerTask;
 import edu.southwestern.tasks.SinglePopulationTask;
-import edu.southwestern.util.datastructures.Pair;
 import edu.southwestern.util.random.RandomNumbers;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Implementation of Deb's NSGA2 multiobjective EA. NSGA2 stands for non-sorting
@@ -130,19 +127,11 @@ public class NSGA2<T> extends MuPlusLambda<T> {
 					parentId2 = otherSource.getId();
 					Genotype<T> otherOffspring;
 
-					if (CommonConstants.cullCrossovers) {
-						ArrayList<Genotype<T>> keepers = cullCrossovers(e, otherSource);
-						// Best two of litter get kept
-						e = keepers.get(0);
-						otherOffspring = keepers.get(1);
-					} else {// keeps all crossovers
-						Genotype<T> other = otherSource.copy();
-						// Genotype e is directly modified by the crossover call.
-						// Genotype otherOffspring is now a modified version of other.
-						otherOffspring = e.crossover(other);
-						assert otherOffspring.getId() != otherSource.getId() : "otherOffspring should be a newly created genotype. otherSource.getId() is " + otherSource.getId() + 
-																	           ", and otherOffspring.getId() is "+otherOffspring.getId()+", and other.getId() is "+other.getId();
-					}
+					Genotype<T> other = otherSource.copy();
+					// Genotype e is directly modified by the crossover call.
+					// Genotype otherOffspring is now a modified version of other.
+					otherOffspring = e.crossover(other);
+					assert otherOffspring.getId() != otherSource.getId() : "otherOffspring should be a newly created genotype. otherSource.getId() is " + otherSource.getId() + 
 					i++;
 					/*
 					 * The offspring e will be added no matter what. Because i
@@ -376,41 +365,5 @@ public class NSGA2<T> extends MuPlusLambda<T> {
 	 */
 	public static <T> ArrayList<ArrayList<NSGA2Score<T>>> getParetoLayers(NSGA2Score<T>[] scores) {
 		return fastNonDominatedSort(scores);
-	}
-
-	/**
-	 * Method mates two genotypes multiple times and evaluates the offspring.
-	 * Only the best resulting offspring is actually kept as the real children of
-	 * the pairing.
-	 * 
-	 * @param <T> Phenotype
-	 * @param parent1 First parent
-	 * @param parent2 Second parent
-	 * @return List of best two offspring
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> ArrayList<Genotype<T>> cullCrossovers(Genotype<T> parent1, Genotype<T> parent2) {
-		ArrayList<Score<T>> litter = new ArrayList<Score<T>>(CommonConstants.litterSize);
-		// Fill litter
-		while (litter.size() < CommonConstants.litterSize) {
-			// Try crossover
-			// Will be a candidate once crossover modifies it
-			Genotype<T> candidate1 = parent1.copy();
-			Genotype<T> other = parent2.copy();
-			Genotype<T> candidate2 = candidate1.crossover(other);// crossover  of  candidate
-			// Evaluate and add to litter
-			Pair<double[], double[]> score = ((NoisyLonerTask<T>) MMNEAT.task).oneEval(candidate1, 0);
-			MultiObjectiveScore<T> s = new MultiObjectiveScore<T>(candidate1, score.t1, null, score.t2);
-			litter.add(s);// adds either candidate or cross over candidate
-
-			if (litter.size() < CommonConstants.litterSize) {
-				score = ((NoisyLonerTask<T>) MMNEAT.task).oneEval(candidate2, 0);
-				s = new MultiObjectiveScore<T>(candidate2, score.t1, null, score.t2);
-				litter.add(s);
-			}
-		}
-		// Cull litter
-		ArrayList<Genotype<T>> keepers = staticSelection(2, staticNSGA2Scores(litter));
-		return keepers;
 	}
 }
