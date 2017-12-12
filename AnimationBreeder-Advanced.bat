@@ -1,0 +1,1 @@
+java -jar CPPNArtEvolution.jar runNumber:0 randomSeed:0 base:animationbreeder task:edu.southwestern.tasks.interactive.animationbreeder.AnimationBreederTask log:AnimationBreeder-Run saveTo:Run maxGens:500 saveInteractiveSelections:false simplifiedInteractiveInterface:false saveAllChampions:false

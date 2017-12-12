@@ -10,8 +10,8 @@ import java.util.StringTokenizer;
 
 import edu.southwestern.evolution.crossover.network.TWEANNCrossover;
 import edu.southwestern.evolution.genotypes.TWEANNGenotype;
-import edu.southwestern.evolution.nsga2.NSGA2;
 import edu.southwestern.evolution.nsga2.bd.characterizations.DomainSpecificCharacterization;
+import edu.southwestern.evolution.selectiveBreeding.SelectiveBreedingEA;
 import edu.southwestern.experiment.evolution.LimitedSinglePopulationGenerationalEAExperiment;
 import edu.southwestern.networks.ActivationFunctions;
 import edu.southwestern.tasks.interactive.breedesizer.Keyboard;
@@ -166,9 +166,9 @@ public class Parameters {
 	 */
 	public final void fillDefaults() {
 		// Integer parameters
-		integerOptions.add("imageSize", 256, "Size of image for Picbreeder");
-		integerOptions.add("imageHeight", 256, "height of CPPN image (overrides height of image being matched if overrideImageSize is true)");
-		integerOptions.add("imageWidth", 256, "width of CPPN image (overrides width of image being matched if overrideImageSize is true)");
+		integerOptions.add("imageSize", 200, "Size of image for Picbreeder");
+		integerOptions.add("imageHeight", 2000, "height of CPPN image (overrides height of image being matched if overrideImageSize is true)");
+		integerOptions.add("imageWidth", 2000, "width of CPPN image (overrides width of image being matched if overrideImageSize is true)");
 		integerOptions.add("multinetworkComboReached", 0, "Tracks highest multinetwork combo reached so far to allow resuming after failure");
 		integerOptions.add("numActiveGhosts", 4, "Number of moving ghosts in pacman");
 		integerOptions.add("rawInputWindowSize", 5, "Raw input window size");
@@ -182,7 +182,7 @@ public class Parameters {
 		integerOptions.add("randomSeed", -1, "Random seed used to control algorithmic randomness (not domain randomness)");
 		integerOptions.add("ftype", ActivationFunctions.FTYPE_TANH, "Integer designation of default activation function for networks");
 		integerOptions.add("maxGens", 500, "Maximum generations allowed for a LimitedGenerationalEAExperiment");
-		integerOptions.add("mu", 50, "Size of parent population in mu +/, lambda scheme");
+		integerOptions.add("mu", 20, "Size of parent population in mu +/, lambda scheme");
 		integerOptions.add("lambda", 50, "Size of child population in mu +/, lambda scheme");
 		integerOptions.add("trials", 1, "Number of trials each individual is evaluated");
 		integerOptions.add("teams", 1, "Number of teams each individual is evaluated in for coevolution");
@@ -199,7 +199,7 @@ public class Parameters {
 		integerOptions.add("hiddenMLPNeurons", 10, "Number of hidden neurons for MLPs");
 		integerOptions.add("numMonsterRays", 5, "Number of ray trace sensors on each monster");
 		integerOptions.add("litterSize", 10, "Number of offspring from a single source to evaluate for culling methods");
-		integerOptions.add("cleanFrequency", 10, "How frequently the archetype needs to be cleaned out");
+		integerOptions.add("cleanFrequency", -1, "How frequently the archetype needs to be cleaned out");
 		integerOptions.add("pacmanMaxLevel", 4, "Pacman level after which simulation ends");
 		integerOptions.add("justMaze", -1, "If 0 - 3, then Pac-Man only plays a specific maze over and over");
 		integerOptions.add("initialMaze", 0, "Pacman maze to start on");
@@ -364,7 +364,7 @@ public class Parameters {
 		booleanOptions.add("allowDoNothingActionForPredators", true, "If turned on, the predators will have the option to do nothing as their action");
 		booleanOptions.add("allowDoNothingActionForPreys", false, "If turned on, the preys will have the option to do nothing as their action");
 		booleanOptions.add("removePillsNearPowerPills", false, "Pills in a c-path with power pills are absent");
-		booleanOptions.add("allowMultipleFunctions", false, "Turning this one will allow you to change TWEANN to CPPN by allowing multiple activation functions");
+		booleanOptions.add("allowMultipleFunctions", true, "Turning this one will allow you to change TWEANN to CPPN by allowing multiple activation functions");
 		booleanOptions.add("includeSigmoidFunction", true, "Fuction for sigmoid. If true, add to the function set");
 		booleanOptions.add("includeFullSigmoidFunction", false, "Fuction for sigmoid stretched to [-1,1]. If true, add to the function set");
 		booleanOptions.add("includeTanhFunction", false, "Fuction for tanh. If true, add to the function set");
@@ -518,7 +518,7 @@ public class Parameters {
 		booleanOptions.add("io", true, "Write output logs");
 		booleanOptions.add("netio", true, "Write xml files of networks");
 		booleanOptions.add("fs", false, "Use feature selective initial networks instead of fully connected networks");
-		booleanOptions.add("mating", false, "Use crossover to mate parents and get offspring");
+		booleanOptions.add("mating", true, "Use crossover to mate parents and get offspring");
 		booleanOptions.add("polynomialMutation", true, "Real parameters mutated according to polynomial mutation");
 		booleanOptions.add("watch", false, "Show evaluations during evolution");
 		booleanOptions.add("watchFitness", false, "Show min/max fitness scores");
@@ -528,7 +528,7 @@ public class Parameters {
 		booleanOptions.add("absenceNegative", false, "Sense absence of input as -1 instead of 0");
 		booleanOptions.add("parallelEvaluations", false, "Perform evaluations in parallel");
 		booleanOptions.add("parallelSave", false, "Perform file saving in parallel");
-		booleanOptions.add("cleanOldNetworks", true, "Delete old network xml files once new networks are saved");
+		booleanOptions.add("cleanOldNetworks", false, "Delete old network xml files once new networks are saved");
 		booleanOptions.add("deterministic", false, "Make evaluations deterministic, if supported");
 		booleanOptions.add("deleteLeastUsed", false, "Delete least-used mode when doing mode deletion");
 		booleanOptions.add("relativePacmanDirections", true, "Ms. Pac-Man senses and actions for directions are relative to current direction");
@@ -554,7 +554,7 @@ public class Parameters {
 		booleanOptions.add("eligibilityOnEarnedFitness", false, "For earned fitness, track eligibility scores");
 		booleanOptions.add("minimalSubnetExecution", false, "Don't execute subnets whose results are not needed");
 		booleanOptions.add("limitedRecurrentMemory", false, "Reset subnet recurrent memory at the end of consecutive usage");
-		booleanOptions.add("recurrency", true, "Allow recurrent links");
+		booleanOptions.add("recurrency", false, "Allow recurrent links");
 		booleanOptions.add("trialsMatchGenerations", false, "Trials increase with generations");
 		booleanOptions.add("allowRandomGhostReversals", true, "Random ghost reversals happen in pacman");
 		booleanOptions.add("pacManTimeFitness", false, "Fitness based on survival and speedy level completion");
@@ -661,7 +661,7 @@ public class Parameters {
 		doubleOptions.add("netPerturbRate", 0.8, "Mutation rate for network weight perturbation");
 		doubleOptions.add("perLinkMutateRate", 0.05, "Per link chance of weight perturbation");
 		doubleOptions.add("netLinkRate", 0.4, "Mutation rate for creation of new network synapses");
-		doubleOptions.add("netChangeActivationRate", 0.0, "Mutation rate for changing a neuron's activation function");
+		doubleOptions.add("netChangeActivationRate", 0.3, "Mutation rate for changing a neuron's activation function");
 		doubleOptions.add("netSpliceRate", 0.2, "Mutation rate for splicing of new network nodes");
 		doubleOptions.add("realMutateRate", 0.3, "Mutation rate for modifying indexes in real-valued string");
 		doubleOptions.add("crossoverRate", 0.5, "Rate of crossover if mating is used");
@@ -700,7 +700,7 @@ public class Parameters {
 		classOptions.add("nicheDefinition", null, "Method for getting the niche of an individual for local competition");
 		classOptions.add("behaviorCharacterization", DomainSpecificCharacterization.class, "Type of behavior characterization used for Behavioral Diversity calculation");
 		classOptions.add("experiment", LimitedSinglePopulationGenerationalEAExperiment.class, "A subclass of Experiment to execute");
-		classOptions.add("ea", NSGA2.class, "A subclass for the evolutionary algorithm to run");
+		classOptions.add("ea", SelectiveBreedingEA.class, "A subclass for the evolutionary algorithm to run");
 		classOptions.add("task", null, "A subclass defining the task to solve");
 		classOptions.add("genotype", TWEANNGenotype.class, "A subclass defining the genotype to evolve with");
 	}

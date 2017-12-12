@@ -1,0 +1,1 @@
+java -jar CPPNArtEvolution.jar runNumber:0 randomSeed:0 base:objectbreeder task:edu.southwestern.tasks.interactive.objectbreeder.ThreeDimensionalObjectBreederTask log:ThreeDimensionalObjectBreeder-Run saveTo:Run maxGens:500 saveInteractiveSelections:false simplifiedInteractiveInterface:false saveAllChampions:false
