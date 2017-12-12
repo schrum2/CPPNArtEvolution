@@ -1,31 +1,11 @@
 package edu.southwestern.networks;
 
-import edu.southwestern.parameters.CommonConstants;
-
 /**
  * Contains various util functions for netwokrs
  * @author Lauren Gillespie
  *
  */
 public class NetworkUtil {
-
-	/**
-	 * Used for standard HyperNEAT link expression. If a link is to be
-	 * expressed, then values beyond a threshold slide back to 0 so that weights
-	 * with a small magnitude are possible.
-	 *
-	 * @param originalOutput
-	 *            original CPPN output
-	 * @return Scaled synaptic weight
-	 */
-	public static double calculateWeight(double originalOutput) {
-		assert(CommonConstants.leo || Math.abs(originalOutput) > CommonConstants.linkExpressionThreshold) : "This link should not be expressed: " + originalOutput;
-		if (originalOutput > CommonConstants.linkExpressionThreshold) {
-			return originalOutput - CommonConstants.linkExpressionThreshold;
-		} else {
-			return originalOutput + CommonConstants.linkExpressionThreshold;
-		}
-	}
 
 	/**
 	 * Propagates values forward one step  by multiplying value at first layer by
