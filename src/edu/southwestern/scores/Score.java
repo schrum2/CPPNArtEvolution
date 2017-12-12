@@ -7,9 +7,7 @@ import java.util.List;
 import edu.southwestern.evolution.ScoreHistory;
 import edu.southwestern.evolution.genotypes.Genotype;
 import edu.southwestern.parameters.CommonConstants;
-import edu.southwestern.util.ClassCreation;
 import edu.southwestern.util.datastructures.ArrayUtil;
-import edu.southwestern.util.stats.Statistic;
 
 /**
  * This is a class that keeps track of an agent's score, the number of
@@ -19,19 +17,6 @@ import edu.southwestern.util.stats.Statistic;
  * @author Jacob Schrum
  */
 public class Score<T> {
-	
-	// Use a scoreHistoryStat aggregation when averaging scores across whole score history
-	static {
-		if(CommonConstants.averageScoreHistory) {
-			try {
-				scoreHistoryStat = (Statistic) ClassCreation.createObject("noisyTaskStat");
-			} catch (NoSuchMethodException ex) {
-				ex.printStackTrace();
-				System.exit(1);
-			}	
-		} else scoreHistoryStat = null;
-	}
-	private static Statistic scoreHistoryStat;
 	
 	// number of evals performed to determine this agent's score
 	public int evals;
@@ -129,24 +114,7 @@ public class Score<T> {
 			// Save adjusted fitness
 			ScoreHistory.add(individual.getId(), adjustedLEEAScores);
 			this.scores = adjustedLEEAScores;
-		}
-		
-		// Do not use both inheritFitness and averageScoreHistory
-		assert !(CommonConstants.inheritFitness && CommonConstants.averageScoreHistory) :
-			    "Do not use both inheritFitness and averageScoreHistory";
-		
-		// My mu/lambda EAs re-evaluate the parents on every
-		// generation, which is actually generally not done.
-		// This is useful though because most domains in MM-NEAT
-		// have noisy evaluations. However, this setting takes
-		// further advantage by averaging fitnesses across all
-		// evaluations from subsequent generations.
-		if(CommonConstants.averageScoreHistory) {
-			// Add the raw scores to the history
-			ScoreHistory.add(individual.getId(), scores);
-			// Get aggregation (default average) across all scores
-			this.scores = ScoreHistory.applyStat(individual.getId(), scoreHistoryStat);
-		}
+		}		
 	}
 
 	/**

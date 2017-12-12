@@ -3,7 +3,6 @@ package edu.southwestern.util.file;
 import edu.southwestern.evolution.genotypes.TWEANNGenotype;
 import edu.southwestern.networks.TWEANN;
 import edu.southwestern.parameters.Parameters;
-import edu.southwestern.tasks.CommonTaskUtil;
 import edu.southwestern.util.graphics.DrawingPanel;
 
 import java.io.File;
@@ -92,7 +91,7 @@ public class FileUtilities {
 	public static void drawTWEANN(String filename) {
 		TWEANNGenotype genotype = (TWEANNGenotype) Easy.load(filename);
 		DrawingPanel panel = new DrawingPanel(TWEANN.NETWORK_VIEW_DIM, TWEANN.NETWORK_VIEW_DIM, "Evolving Network");
-		panel.setLocation(CommonTaskUtil.NETWORK_WINDOW_OFFSET, 0);
+		panel.setLocation(500, 0);
 		genotype.getPhenotype().draw(panel);
 	}
 }
