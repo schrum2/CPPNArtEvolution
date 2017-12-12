@@ -7,23 +7,15 @@ import edu.southwestern.MMNEAT.MMNEAT;
 import edu.southwestern.evolution.EvolutionaryHistory;
 import edu.southwestern.evolution.SinglePopulationGenerationalEA;
 import edu.southwestern.evolution.genotypes.Genotype;
-import edu.southwestern.evolution.genotypes.OffsetHybrIDGenotype;
 import edu.southwestern.evolution.genotypes.TWEANNGenotype;
-import edu.southwestern.evolution.genotypes.TWEANNGenotype.LinkGene;
 import edu.southwestern.log.FitnessLog;
 import edu.southwestern.log.PlotLog;
 import edu.southwestern.networks.TWEANN;
-import edu.southwestern.networks.hyperneat.HyperNEATUtil;
 import edu.southwestern.parameters.CommonConstants;
 import edu.southwestern.parameters.Parameters;
 import edu.southwestern.scores.Score;
 import edu.southwestern.tasks.SinglePopulationTask;
 import edu.southwestern.tasks.Task;
-import edu.southwestern.tasks.mspacman.CooperativeMsPacManTask;
-import edu.southwestern.tasks.mspacman.MsPacManTask;
-import edu.southwestern.tasks.mspacman.init.MsPacManInitialization;
-import edu.southwestern.tasks.mspacman.multitask.DangerousAreaModeSelector;
-import edu.southwestern.tasks.mspacman.sensors.directional.scent.VariableDirectionKStepDeathScentBlock;
 import edu.southwestern.util.PopulationUtil;
 import edu.southwestern.util.datastructures.ArrayUtil;
 import edu.southwestern.util.stats.StatisticsUtilities;
@@ -54,7 +46,6 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 	protected boolean writeOutput;
 	private final int MAX_MODE_OF_LOG_INTEREST = 5;
 	public boolean evaluatingParents = false;
-	public boolean msPacMan;
 
 	/**
 	 * Initialize evolutionary algorithm.
@@ -77,28 +68,11 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 		this.lambda = lambda;
 		this.generation = Parameters.parameters.integerParameter("lastSavedGeneration");
 		writeOutput = Parameters.parameters.booleanParameter("io");
-		msPacMan = task instanceof MsPacManTask || task instanceof CooperativeMsPacManTask;
 
 		if (writeOutput && io) {
 			parentLog = new FitnessLog<T>("parents");
 			if (CommonConstants.logChildScores) {
 				childLog = new FitnessLog<T>("child");
-			}
-			if (task instanceof MsPacManTask && (MMNEAT.modesToTrack > 1 || TWEANN.preferenceNeuron()
-					|| Parameters.parameters.booleanParameter("ensembleModeMutation"))) {
-				ArrayList<String> labels = new ArrayList<String>();
-				labels.add("Max Modes of Best");
-				labels.add("Min Modes of Best");
-				labels.add("Avg Modes of Best");
-				labels.add("Max Modes of Worst");
-				labels.add("Min Modes of Worst");
-				labels.add("Avg Modes of Worst");
-				int i;
-				for (i = 1; i <= MAX_MODE_OF_LOG_INTEREST; i++) {
-					labels.add(i + " Mode Best");
-				}
-				labels.add("More Than " + i + " Modes Best");
-				modeLog = new PlotLog("ModeUsage", labels);
 			}
 		}
 	}
@@ -285,19 +259,6 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 		generation++;
 		EvolutionaryHistory.frozenPreferenceVsPolicyStatusUpdate(newParents, generation);
 		CommonConstants.trialsByGenerationUpdate(generation);
-		if(msPacMan) { // Pacman-specific updates
-			if (Parameters.parameters.booleanParameter("scalePillsByGen")) { // For pacman
-				Parameters.parameters.setDouble("preEatenPillPercentage", 1.0 - ((generation * 1.0) / Parameters.parameters.integerParameter("maxGens")));
-			}
-			if (Parameters.parameters.booleanParameter("incrementallyDecreasingEdibleTime")) { // For pacman
-				MsPacManInitialization.setEdibleTimeBasedOnGeneration(generation);
-			}
-			if (Parameters.parameters.booleanParameter("incrementallyDecreasingLairTime")) { // For pacman
-				MsPacManInitialization.setLairTimeBasedOnGeneration(generation);
-			}
-			VariableDirectionKStepDeathScentBlock.updateScentMaps(); // For pacman
-			DangerousAreaModeSelector.updateScentMaps(); // For pacman
-		}
 		return newParents;
 	}
 
@@ -397,42 +358,6 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 			MMNEAT.logPerformanceInformation(combined, generation);
 		}
 		ArrayList<Genotype<T>> result = selectAndAdvance(parentScores, childrenScores);
-		if(CommonConstants.hybrID && currentGeneration() == Parameters.parameters.integerParameter("hybrIDSwitchGeneration")) {	
-			if(Parameters.parameters.booleanParameter("offsetHybrID")) { //offsetHybrid is being used
-				result = OffsetHybrIDGenotype.getSubstrateGenotypesFromCPPNs(HyperNEATUtil.getHyperNEATTask(), result);
-			} else { //if preset-switch HybrID is being used
-				// Turn HyperNEAT off
-				CommonConstants.hyperNEAT = false;
-				Parameters.parameters.setBoolean("hyperNEAT", false);
-				// HyperNEAT disables monitorInputs, but if the parameter was true, then hybrID can turn it back on
-				CommonConstants.monitorInputs = Parameters.parameters.booleanParameter("monitorInputs");
-				// Turn off HyperNEAT visualizations
-				HyperNEATUtil.clearHyperNEATVisualizations();
-				// Need small genes because there are so many of them
-				TWEANNGenotype.smallerGenotypes = true; 
-				// Switch from CPPNs to plain TWEANNs
-				Parameters.parameters.setClass("genotype", TWEANNGenotype.class);
-				// Substrate networks cannot have different activation functions
-				CommonConstants.netChangeActivationRate = 0;
-				Parameters.parameters.setDouble("netChangeActivationRate", 0);
-				// Only CPPNs have multiple activation functions, but standard NNs do not
-				CommonConstants.allowMultipleFunctions = false;
-				Parameters.parameters.setBoolean("allowMultipleFunctions", false);
-				// Get substrate genotypes
-				result = PopulationUtil.getSubstrateGenotypesFromCPPNs(HyperNEATUtil.getHyperNEATTask(), result, 0); // 0 is only population
-				// Reset archetype because the evolved CPPN genes are no longer relevant.
-				// 0 indicates that there is only one population, null will cause the archetype to reset, 
-				// and the nodes from the nodes from the first member of the new population will define the genotype	
-				TWEANNGenotype exemplar = (TWEANNGenotype) result.get(0).copy();
-				// Reset next innovation based on the maximum in the exemplar genotype
-				long maxInnovation = 0;
-				for(LinkGene lg : exemplar.links) {
-					maxInnovation = Math.max(maxInnovation, lg.innovation);
-				}
-				EvolutionaryHistory.setInnovation(maxInnovation+1);
-				EvolutionaryHistory.initArchetype(0, null, exemplar);
-			}
-		}
 		return result;
 	}
 
