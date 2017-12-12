@@ -1,11 +1,9 @@
 package edu.southwestern.networks;
 
 import edu.southwestern.evolution.EvolutionaryHistory;
-import edu.southwestern.evolution.genotypes.HyperNEATCPPNGenotype;
 import edu.southwestern.evolution.genotypes.TWEANNGenotype;
 import edu.southwestern.evolution.genotypes.TWEANNGenotype.LinkGene;
 import edu.southwestern.evolution.lineage.Offspring;
-import edu.southwestern.networks.hyperneat.HyperNEATUtil;
 import edu.southwestern.MMNEAT.MMNEAT;
 import edu.southwestern.parameters.CommonConstants;
 import edu.southwestern.parameters.Parameters;
@@ -738,10 +736,6 @@ public class TWEANN implements Network {
 			outputs = moduleOutput(chosenModule);
 		}
 		if (canDraw) {
-			if(!HyperNEATCPPNGenotype.constructingNetwork && CommonConstants.hyperNEAT && CommonConstants.monitorSubstrates) {
-				animateSubstrate();
-			}
-				
 			if (panel != null && Parameters.parameters.booleanParameter("animateNetwork")) {
 				draw(panel);
 			}
@@ -833,15 +827,6 @@ public class TWEANN implements Network {
 			GraphicsUtil.linePlot(preferenceNeuronPanel, -1, 1, preferenceActivationHistory[i],
 					CombinatoricUtilities.colorFromInt(i));
 		}
-	}
-
-	/**
-	 * Creates and updates visuals of substrates used by h-neat tetris task 
-	 */
-	public void animateSubstrate() {
-			subsPanel = HyperNEATUtil.drawSubstrates(nodes);
-			//tweannGenotype has getLinkBetween
-			//just need to find a way to get neuron innovation numbers
 	}
 
 	private static void refreshActivation(DrawingPanel inputPanel, double[] inputs, double[] outputs, double[] preferences, boolean multitask, double[] preferenceFatigue) {
