@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="lib/woxser-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jlayer-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/vecmath-1.5.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
