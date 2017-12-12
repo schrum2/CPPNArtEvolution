@@ -27,6 +27,5 @@ public class SpliceNeuronMutation extends TWEANNMutation {
 	 */
 	public void mutate(Genotype<TWEANN> genotype) {
 		((TWEANNGenotype) genotype).spliceMutation();
-		cullForBestWeight((TWEANNGenotype) genotype, new int[] { 2 });
 	}
 }

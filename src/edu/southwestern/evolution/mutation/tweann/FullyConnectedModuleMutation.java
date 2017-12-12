@@ -36,6 +36,5 @@ public class FullyConnectedModuleMutation extends ModuleMutation {
 		for (int i = 0; i < linksAdded; i++) { //copies ascending integer values into an array of the size of linksAdded
 			subs[i] = i + 1;
 		}
-		cullForBestWeight(genotype, subs);
 	}
 }

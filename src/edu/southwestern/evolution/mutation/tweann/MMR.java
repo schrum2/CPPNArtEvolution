@@ -31,6 +31,5 @@ public class MMR extends ModuleMutation {
 		for (int i = 0; i < linksAdded; i++) { //adds ascending integers into an array that is the size of the amount of links added
 			subs[i] = i + 1;
 		}
-		cullForBestWeight(genotype, subs);
 	}
 }

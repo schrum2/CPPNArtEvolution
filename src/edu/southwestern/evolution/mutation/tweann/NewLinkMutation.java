@@ -29,7 +29,6 @@ public class NewLinkMutation extends TWEANNMutation {
 	@Override
 	public void mutate(Genotype<TWEANN> genotype) {
 		((TWEANNGenotype) genotype).linkMutation();
-		cullForBestWeight((TWEANNGenotype) genotype, new int[] { 1 });
 		//culls for the best weight from random link addition
 	}
 }
