@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import edu.southwestern.MMNEAT.MMNEAT;
+import edu.southwestern.log.PerformanceLog;
 import edu.southwestern.log.TWEANNLog;
 import edu.southwestern.parameters.Parameters;
+import edu.southwestern.tasks.MultiplePopulationTask;
 import edu.southwestern.util.stats.Statistic;
 import edu.southwestern.util.stats.StatisticsUtilities;
 
@@ -48,11 +50,16 @@ public class ResultSummaryUtilities {
 		plotAverageFitnessesFile(filePrefix, genFileMiddle + "Scores", logSuffix, num, runs, outputDir, StatisticsUtilities.tValue(runs), popNum);
 		// TWEANN Info
 		String loadFrom = Parameters.parameters.stringParameter("loadFrom");
-		if ((loadFrom == null || loadFrom.equals(""))) {
+		if ((loadFrom == null || loadFrom.equals("")) && !(MMNEAT.task instanceof MultiplePopulationTask)) {
 			if (Parameters.parameters.booleanParameter("logTWEANNData")) {
 				System.out.println("TWEANN Info: " + outputDir + "/" + filePrefix + "AVG" + logSuffix);
 				int inputNum = averageConditionResults(dirPrefix, filePrefix, "_TWEANNData_log.txt", runs, outputDir);
 				plotInfoFile(filePrefix, "_TWEANNData_log", inputNum, outputDir, TWEANNLog.getLabels());
+			}
+			if (Parameters.parameters.booleanParameter("logPerformance")) {
+				System.out.println("Performance Info: " + outputDir + "/" + filePrefix + "AVG" + logSuffix);
+				int inputNum = averageConditionResults(dirPrefix, filePrefix, "_Performance_log.txt", runs, outputDir);
+				plotInfoFile(filePrefix, "_Performance_log", inputNum, outputDir, PerformanceLog.getLabels());
 			}
 		}
 	}
