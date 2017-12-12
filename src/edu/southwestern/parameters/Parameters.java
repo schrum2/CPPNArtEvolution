@@ -10,7 +10,6 @@ import java.util.StringTokenizer;
 
 import edu.southwestern.evolution.crossover.network.TWEANNCrossover;
 import edu.southwestern.evolution.genotypes.TWEANNGenotype;
-import edu.southwestern.evolution.nsga2.bd.characterizations.DomainSpecificCharacterization;
 import edu.southwestern.evolution.selectiveBreeding.SelectiveBreedingEA;
 import edu.southwestern.experiment.evolution.LimitedSinglePopulationGenerationalEAExperiment;
 import edu.southwestern.networks.ActivationFunctions;
@@ -659,7 +658,6 @@ public class Parameters {
 		classOptions.add("ensembleArbitrator", null, "How to arbitrate between agents when using an ensemble");
 		classOptions.add("crossover", TWEANNCrossover.class, "Crossover operator to use if mating is used");
 		classOptions.add("nicheDefinition", null, "Method for getting the niche of an individual for local competition");
-		classOptions.add("behaviorCharacterization", DomainSpecificCharacterization.class, "Type of behavior characterization used for Behavioral Diversity calculation");
 		classOptions.add("experiment", LimitedSinglePopulationGenerationalEAExperiment.class, "A subclass of Experiment to execute");
 		classOptions.add("ea", SelectiveBreedingEA.class, "A subclass for the evolutionary algorithm to run");
 		classOptions.add("task", null, "A subclass defining the task to solve");

@@ -7,7 +7,6 @@ import edu.southwestern.evolution.EvolutionaryHistory;
 import edu.southwestern.evolution.SinglePopulationGenerationalEA;
 import edu.southwestern.evolution.genotypes.Genotype;
 import edu.southwestern.evolution.genotypes.TWEANNGenotype;
-import edu.southwestern.log.FitnessLog;
 import edu.southwestern.log.PlotLog;
 import edu.southwestern.networks.TWEANN;
 import edu.southwestern.parameters.CommonConstants;
@@ -16,8 +15,6 @@ import edu.southwestern.scores.Score;
 import edu.southwestern.tasks.SinglePopulationTask;
 import edu.southwestern.tasks.Task;
 import edu.southwestern.util.PopulationUtil;
-import edu.southwestern.util.datastructures.ArrayUtil;
-import edu.southwestern.util.stats.StatisticsUtilities;
 
 /**
  *
@@ -39,11 +36,10 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 	public int lambda;
 	public SinglePopulationTask<T> task;
 	public int generation;
-	protected FitnessLog<T> parentLog;
-	protected FitnessLog<T> childLog;
+//	protected FitnessLog<T> parentLog;
+//	protected FitnessLog<T> childLog;
 	protected PlotLog modeLog;
 	protected boolean writeOutput;
-	private final int MAX_MODE_OF_LOG_INTEREST = 5;
 	public boolean evaluatingParents = false;
 
 	/**
@@ -68,12 +64,13 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 		this.generation = Parameters.parameters.integerParameter("lastSavedGeneration");
 		writeOutput = Parameters.parameters.booleanParameter("io");
 
-		if (writeOutput && io) {
-			parentLog = new FitnessLog<T>("parents");
-			if (CommonConstants.logChildScores) {
-				childLog = new FitnessLog<T>("child");
-			}
-		}
+		// Interactive evolution logs are uninteresting
+//		if (writeOutput && io) {
+//			parentLog = new FitnessLog<T>("parents");
+//			if (CommonConstants.logChildScores) {
+//				childLog = new FitnessLog<T>("child");
+//			}
+//		}
 	}
 
 	/**
@@ -110,98 +107,6 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 	}
 
 	/**
-	 * Write info to file about parent population
-	 * 
-	 * @param parentScores
-	 *            Score details of all parents after evaluation
-	 */
-	@SuppressWarnings("rawtypes")
-	public void logParentInfo(ArrayList<Score<T>> parentScores) {
-		if (writeOutput) {
-			parentLog.log(parentScores, generation);
-			Genotype example = parentScores.get(0).individual;
-			if (example instanceof TWEANNGenotype) {
-				ArrayList<TWEANNGenotype> tweanns = new ArrayList<TWEANNGenotype>(parentScores.size());
-				for (Score<T> g : parentScores) {
-					tweanns.add((TWEANNGenotype) g.individual);
-				}
-				EvolutionaryHistory.logTWEANNData(tweanns, generation);
-				if (modeLog != null) {
-					moduleLogging(parentScores);
-				}
-			}
-		}
-	}
-
-	/**
-	 * For multi-module networks. Log information about numbers of
-	 * modules. Not used by default.
-	 * @param parentScores Scores from evaluated parents, which also
-	 *                     contain module information (within TWEANNGenotype).
-	 */
-	private void moduleLogging(ArrayList<Score<T>> parentScores) {
-		// Find out how many modes the best and worst nets had
-		double[] modeBests = new double[MAX_MODE_OF_LOG_INTEREST + 1];
-		double max = 0;
-		double min = Double.MAX_VALUE;
-		int minMaxModes = 0;
-		int minMinModes = Integer.MAX_VALUE;
-		int maxMaxModes = 0;
-		int maxMinModes = Integer.MAX_VALUE;
-		ArrayList<Double> modeCountsOfBest = new ArrayList<Double>();
-		ArrayList<Double> modeCountsOfWorst = new ArrayList<Double>();
-		for (Score<T> g : parentScores) {
-			double score = g.otherStats[0]; // Game score should always be first "other" stat
-			int modes = ((TWEANNGenotype) g.individual).numModules;
-			if (modes <= MAX_MODE_OF_LOG_INTEREST) {
-				modeBests[modes - 1] = Math.max(modeBests[modes - 1], score);
-			} else {
-				modeBests[MAX_MODE_OF_LOG_INTEREST] = Math.max(modeBests[MAX_MODE_OF_LOG_INTEREST], score);
-			}
-			if (score == max) {
-				modeCountsOfBest.add((double) modes);
-				maxMaxModes = Math.max(maxMaxModes, modes);
-				maxMinModes = Math.min(maxMinModes, modes);
-			} else if (score > max) {
-				modeCountsOfBest = new ArrayList<Double>();
-				modeCountsOfBest.add((double) modes);
-				maxMaxModes = modes;
-				maxMinModes = modes;
-			}
-			max = Math.max(score, max);
-
-			if (score == min) {
-				modeCountsOfWorst.add((double) modes);
-				minMaxModes = Math.max(minMaxModes, modes);
-				minMinModes = Math.min(minMinModes, modes);
-			} else if (score < min) {
-				modeCountsOfWorst = new ArrayList<Double>();
-				modeCountsOfWorst.add((double) modes);
-				minMaxModes = modes;
-				minMinModes = modes;
-			}
-			min = Math.min(score, min);
-		}
-		// System.out.println("modeCountsOfBest:"+modeCountsOfBest);
-		double maxAvgModes = StatisticsUtilities.average(ArrayUtil.doubleArrayFromList(modeCountsOfBest));
-		double minAvgModes = StatisticsUtilities.average(ArrayUtil.doubleArrayFromList(modeCountsOfWorst));
-		// System.out.println("avgModes:"+avgModes);
-		// Log the data
-		ArrayList<Double> logValues = new ArrayList<Double>(8);
-		logValues.add((double) maxMaxModes);
-		logValues.add((double) maxMinModes);
-		logValues.add(maxAvgModes);
-		logValues.add((double) minMaxModes);
-		logValues.add((double) minMinModes);
-		logValues.add(minAvgModes);
-		// <= because the last slot is for that many modes or more
-		for (int i = 0; i <= MAX_MODE_OF_LOG_INTEREST; i++) {
-			logValues.add(modeBests[i]);
-		}
-		modeLog.log(generation, logValues);
-	}
-
-	/**
 	 * Given parent scores/genotypes, generate children, evaluate them, and
 	 * return their scores.
 	 * 
@@ -211,15 +116,10 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 	 */
 	public ArrayList<Score<T>> processChildren(ArrayList<Score<T>> parentScores) {
 		// Get offspring from parents
-		ArrayList<Genotype<T>> children = performDeltaCoding(generation)
-				? PopulationUtil.getBestAndDeltaCode(parentScores) : generateChildren(lambda, parentScores);
-				// Evaluate the children
-				ArrayList<Score<T>> childrenScores = task.evaluateAll(children);
-				// Log child information to file
-				if (writeOutput && CommonConstants.logChildScores) {
-					childLog.log(childrenScores, generation);
-				}
-				return childrenScores;
+		ArrayList<Genotype<T>> children = generateChildren(lambda, parentScores);
+		// Evaluate the children
+		ArrayList<Score<T>> childrenScores = task.evaluateAll(children);
+		return childrenScores;
 	}
 
 	/**
@@ -344,41 +244,8 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 		ArrayList<Score<T>> childrenScores = processChildren(parentScores);
 		end = System.currentTimeMillis();
 		System.out.println("Done children: " + TimeUnit.MILLISECONDS.toMinutes(end - start) + " minutes");
-
-		// Parent logging occurs after child evals to decrease odds of logs
-		// getting out of sync.
-		// This way, all logs are updated at once, along with the generation
-		// param being advanced.
-		logParentInfo(parentScores);
-		if (writeOutput) {
-			ArrayList<Score<T>> combined = new ArrayList<Score<T>>(mu + lambda);
-			combined.addAll(parentScores);
-			combined.addAll(childrenScores);
-		}
 		ArrayList<Genotype<T>> result = selectAndAdvance(parentScores, childrenScores);
 		return result;
-	}
-
-	/**
-	 * Cleanup needed at end of evolution
-	 * 
-	 * @param population
-	 *            Final population
-	 */
-	@Override
-	public void close(ArrayList<Genotype<T>> population) {
-		// Evaluate final parents (haven't technically been evaluated yet)
-		ArrayList<Score<T>> parentScores = task.evaluateAll(population);
-		logParentInfo(parentScores);
-		if (writeOutput) {
-			parentLog.close();
-			if (childLog != null) {
-				childLog.close();
-			}
-			if (modeLog != null) {
-				modeLog.close();
-			}
-		}
 	}
 
 	/**

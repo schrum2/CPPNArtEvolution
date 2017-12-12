@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -24,8 +22,6 @@ import edu.southwestern.evolution.lineage.Offspring;
 import edu.southwestern.evolution.mutation.tweann.ActivationFunctionRandomReplacement;
 import edu.southwestern.evolution.mutation.tweann.CauchyDeltaCodeMutation;
 import edu.southwestern.evolution.mutation.tweann.WeightRandomReplacement;
-import edu.southwestern.evolution.nsga2.NSGA2;
-import edu.southwestern.evolution.nsga2.NSGA2Score;
 import edu.southwestern.networks.TWEANN;
 import edu.southwestern.parameters.CommonConstants;
 import edu.southwestern.parameters.Parameters;
@@ -259,20 +255,6 @@ public class PopulationUtil {
 	}    
 
 	/**
-	 * Given a whole population of scores, get the Pareto front and use them as
-	 * exemplars to create a delta-coded population.
-	 * 
-	 * @param <T> phenotype
-	 * @param populationScores
-	 *            population with scores
-	 * @return new soft restart population
-	 */
-	public static <T> ArrayList<Genotype<T>> getBestAndDeltaCode(ArrayList<Score<T>> populationScores) {
-		ArrayList<Genotype<T>> front = NSGA2.staticSelection(populationScores.size(), NSGA2.staticNSGA2Scores(populationScores));
-		return deltaCodePopulation(populationScores.size(), front);
-	}
-
-	/**
 	 * Take some example genotypes (e.g. a Pareto front) and create a whole
 	 * population based off of them by delta coding their network weights.
 	 * 
@@ -363,56 +345,6 @@ public class PopulationUtil {
 	}
 
 	/**
-	 * Modifies population sent in so it contains only members of Pareto front
-	 *
-	 * @param <T>
-	 *            Type of phenotype
-	 * @param population
-	 *            full population to be reduced to Pareto front
-	 * @param scores
-	 *            loaded scores corresponding to individuals in population
-	 */
-	public static <T> void pruneDownToParetoFront(ArrayList<Genotype<T>> population, NSGA2Score<T>[] scores) {
-		pruneDownToTopParetoLayers(population, scores, 1);
-	}
-
-	/**
-	 * Modifies population so it contains only top Pareto layers
-	 *
-	 * @param <T>
-	 *            Phenotype
-	 * @param population
-	 *            genotypes to prune
-	 * @param scores
-	 *            scores corresponding to genotypes
-	 * @param layers
-	 *            How many layers to keep
-	 */
-	public static <T> void pruneDownToTopParetoLayers(ArrayList<Genotype<T>> population, NSGA2Score<T>[] scores, int layers) {
-		ArrayList<ArrayList<NSGA2Score<T>>> fronts = NSGA2.getParetoLayers(scores);		
-		// Reduce population to only contain top Pareto layers
-		Iterator<Genotype<T>> itr = population.iterator();
-		System.out.println("Reducing to top " + layers + " Pareto layers");
-		while (itr.hasNext()) {
-			Genotype<T> g = itr.next();
-			boolean found = false;
-			for (int i = 0; !found && i < layers; i++) {
-				ArrayList<NSGA2Score<T>> front = fronts.get(i);
-				for (NSGA2Score<T> s : front) {
-					if (s.individual.getId() == g.getId()) {
-						found = true;
-						System.out.println(s.individual.getId() + ":" + Arrays.toString(s.scores) + " in layer " + i);
-						break;
-					}
-				}
-			}
-			if (!found) {
-				itr.remove();
-			}
-		}
-	}
-
-	/**
 	 * Load all genotypes that are xml files in the given directory
 	 *
 	 * @param <T>
@@ -453,94 +385,6 @@ public class PopulationUtil {
 			System.out.println(", ID = " + individual.getId());
 		}
 		return individual;
-	}
-
-	/**
-	 * Loads score information from the score file pertaining to a single
-	 * generation. Only works for score files saved by single-population
-	 * experiments.
-	 *
-	 * @param <T>
-	 *            phenotype of saved individuals: irrelevant because scores
-	 *            contain anonymous dummy individuals
-	 * @param generation
-	 *            generation to load scores for
-	 * @return Array of NSGA2Scores for given generation
-	 * @throws FileNotFoundException
-	 *             if score file does not exist
-	 */
-	public static <T> NSGA2Score<T>[] loadScores(int generation) throws FileNotFoundException {
-		String base = Parameters.parameters.stringParameter("base");
-		String saveTo = Parameters.parameters.stringParameter("saveTo");
-		int run = Parameters.parameters.integerParameter("runNumber");
-		String log = Parameters.parameters.stringParameter("log");
-		String filePrefix = base + "/" + saveTo + run + "/" + log + run + "_";
-		String infix = "parents_gen";
-		String filename = filePrefix + infix + generation + ".txt";
-		return loadScores(filename);
-	}
-
-	/**
-	 * Same as above, but for coevolution
-	 *
-	 * @param generation
-	 *            generation to load from
-	 * @param pop
-	 *            subpopulation index
-	 * @return scores of subpop in designated generation
-	 * @throws FileNotFoundException
-	 */
-	@SuppressWarnings("rawtypes")
-	public static NSGA2Score[] loadSubPopScores(int generation, int pop) throws FileNotFoundException {
-		String base = Parameters.parameters.stringParameter("base");
-		String saveTo = Parameters.parameters.stringParameter("saveTo");
-		int run = Parameters.parameters.integerParameter("runNumber");
-		String log = Parameters.parameters.stringParameter("log");
-		String filePrefix = base + "/" + saveTo + run + "/" + log + run + "_";
-		String infix = "pop" + pop + "parents_gen";
-		String filename = filePrefix + infix + generation + ".txt";
-		return loadScores(filename);
-	}
-
-	/**
-	 * Loads scores from a specific filename and creates score entries with
-	 * dummy individuals to return.
-	 *
-	 * @param <T>
-	 *            phenotype: irrelevant since anonymous dummy individuals are used
-	 * @param filename
-	 *            file to load scores from
-	 * @return array of scores
-	 * @throws FileNotFoundException
-	 *             if filename does not exist
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> NSGA2Score<T>[] loadScores(String filename) throws FileNotFoundException {
-		Scanner s = new Scanner(new File(filename));
-		NSGA2Score<T>[] populationScores = new NSGA2Score[Parameters.parameters.integerParameter("mu")];
-		int i = 0;
-		while (s.hasNextLine()) {
-			Scanner line = new Scanner(s.nextLine());
-			//int withinGen = line.nextInt();
-			long offspringId = line.nextLong();
-			ArrayList<Double> scores = new ArrayList<Double>();
-			while (line.hasNext()) {
-				double x = line.nextDouble();
-				// System.out.print(x + "\t");
-				scores.add(x);
-			}
-			// System.out.println();
-			double[] scoreArray = new double[scores.size()];
-			for (int j = 0; j < scoreArray.length; j++) {
-				scoreArray[j] = scores.get(j);
-			}
-			Genotype<T> anonymous = anonymousIdIndividual(offspringId);
-			populationScores[i++] = new NSGA2Score(anonymous, scoreArray, null, null);
-			assert populationScores[i - 1] != null : "Null Score! " + i;
-			line.close();
-		}
-		s.close();
-		return populationScores;
 	}
 
 	/**
@@ -815,27 +659,6 @@ public class PopulationUtil {
 		ArrayList<Genotype<T>> leftDiffRight = ArrayUtil.setDifference(lhs, rhs);
 		ArrayList<Genotype<T>> rightDiffLeft = ArrayUtil.setDifference(rhs, lhs);
 		return new Pair<ArrayList<Genotype<T>>, ArrayList<Genotype<T>>>(leftDiffRight, rightDiffLeft);
-	}
-
-	/**
-	 * From an array of scores, return the one whose embedded individual has a
-	 * designated id
-	 *
-	 * @param <T>
-	 *            type of phenotype
-	 * @param id
-	 *            id of genotype
-	 * @param staticScores
-	 *            scores to search, each containing a genotype
-	 * @return the score matching the id
-	 */
-	public static <T> NSGA2Score<T> scoreWithId(long id, NSGA2Score<T>[] staticScores) {
-		for (NSGA2Score<T> s : staticScores) {
-			if (s.individual.getId() == id) {
-				return s;
-			}
-		}
-		return null;
 	}
 
 	/**
