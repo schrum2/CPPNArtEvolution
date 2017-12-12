@@ -3,7 +3,6 @@ package edu.southwestern.evolution.mulambda;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import edu.southwestern.MMNEAT.MMNEAT;
 import edu.southwestern.evolution.EvolutionaryHistory;
 import edu.southwestern.evolution.SinglePopulationGenerationalEA;
 import edu.southwestern.evolution.genotypes.Genotype;
@@ -355,7 +354,6 @@ public abstract class MuLambda<T> implements SinglePopulationGenerationalEA<T> {
 			ArrayList<Score<T>> combined = new ArrayList<Score<T>>(mu + lambda);
 			combined.addAll(parentScores);
 			combined.addAll(childrenScores);
-			MMNEAT.logPerformanceInformation(combined, generation);
 		}
 		ArrayList<Genotype<T>> result = selectAndAdvance(parentScores, childrenScores);
 		return result;

@@ -53,7 +53,7 @@ public class ScoreHistory {
 	}
 	
 	public static void load() {
-		if(CommonConstants.inheritFitness || CommonConstants.averageScoreHistory) {
+		if(CommonConstants.inheritFitness) {
 			String base = Parameters.parameters.stringParameter("base");
 			int runNumber = Parameters.parameters.integerParameter("runNumber");
 			String saveTo = Parameters.parameters.stringParameter("saveTo");
