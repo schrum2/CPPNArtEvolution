@@ -461,7 +461,7 @@ public class TWEANNGenotype implements NetworkGenotype<TWEANN> {
     @Override
     public final int numModules() {
         return (int) Math.max(1,
-                numOut / (neuronsPerModule + (standardMultitask || CommonConstants.ensembleModeMutation ? 0 : 1)));
+                numOut / (neuronsPerModule + (standardMultitask ? 0 : 1)));
     }
 
     /**
@@ -621,9 +621,7 @@ public class TWEANNGenotype implements NetworkGenotype<TWEANN> {
         // Forms of mode mutation
         if (this.numModules < CommonConstants.maxModes
                 // Make sure modes are somewhat evenly used
-                && (CommonConstants.ensembleModeMutation
-                || // possible if mode usage is actually selector's subnet usage
-                moduleUsage.length != numModules
+                && (moduleUsage.length != numModules
                 || CommonConstants.minimalSubnetExecution
                 || minModuleUsage() >= (1.0 / (CommonConstants.usageForNewMode * numModules)))
                 // Only allow mode mutation when number of modes is same for all
@@ -1765,9 +1763,6 @@ public class TWEANNGenotype implements NetworkGenotype<TWEANN> {
      * @return
      */
     public double maxModuleUsage() {
-        if (CommonConstants.ensembleModeMutation) {
-            return 0;
-        }
         double[] dist = StatisticsUtilities.distribution(moduleUsage);
         if (dist.length == 0) {
             return 0;
@@ -1782,9 +1777,6 @@ public class TWEANNGenotype implements NetworkGenotype<TWEANN> {
      * @return
      */
     public double minModuleUsage() {
-        if (CommonConstants.ensembleModeMutation) {
-            return 0;
-        }
         double[] dist = StatisticsUtilities.distribution(moduleUsage);
         if (dist.length == 0) {
             return 0;
