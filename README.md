@@ -23,3 +23,24 @@ The batch files listed above do not use any Windows-specific commands, so they c
 If you need any help, then please contact me at schrum2@southwestern.edu!
 
 Also, you can evolve neural networks for lots of other interesting applications by using the original [MM-NEAT project](https://github.com/schrum2/MM-NEAT), which contains the interactive evolution code from this project, along with code to evolve agent behavior for various tasks (Ms. Pac-Man, Tetris, and Mario to name a few)
+
+## Citing
+
+If you use any of this code for any project or publication, please cite the following paper:
+
+```
+@inproceedings{tweraser:gecco2018,
+	title={Querying Across Time to Interactively Evolve Animations},
+	author={Tweraser, Isabel and Gillespie, Lauren E and Schrum, Jacob},
+	year={2018},
+	booktitle={Proceedings of the Genetic and Evolutionary Computation Conference (GECCO 2018)},
+	month={July},
+	numpages = {8},
+	url = {http://doi.acm.org/10.1145/3205455.3205460},
+	doi = {10.1145/3205455.3205460},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+	location={Kyoto, Japan}
+}
+
+```
