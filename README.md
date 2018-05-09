@@ -36,7 +36,7 @@ If you use any of this code for any project or publication, please cite the foll
 	booktitle={Proceedings of the Genetic and Evolutionary Computation Conference (GECCO 2018)},
 	month={July},
 	numpages = {8},
-	url = {http://doi.acm.org/10.1145/3205455.3205460},
+	url = {https://people.southwestern.edu/~schrum2/SCOPE/tweraser.gecco18.pdf},
 	doi = {10.1145/3205455.3205460},
 	publisher = {ACM},
 	address = {New York, NY, USA},
